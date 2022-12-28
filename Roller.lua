@@ -179,7 +179,7 @@ windower.register_event('addon command',function (...)
 		
 		elseif cmd[1] == "nuke" or cmd[1] == "burst" or cmd[1] == "matk" or cmd[1]:startswith('mag')  then
 			settings.Roll_ind_1 = 4
-			settings.Roll_ind_2 = 5
+			settings.Roll_ind_2 = 15
 			windower.add_to_chat(7,'Setting Roll 1 to: '..Rollindex[settings.Roll_ind_1]..'')
 			windower.add_to_chat(7,'Setting Roll 2 to: '..Rollindex[settings.Roll_ind_2]..'')
 			config.save(settings)
