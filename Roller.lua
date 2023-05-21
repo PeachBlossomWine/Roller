@@ -401,25 +401,25 @@ windower.register_event('action', function(act)
 				local available_ja = S(windower.ffxi.get_abilities().job_abilities)
 				if available_ja:contains(177) and abil_recasts[197] == 0 and rollNum == 10 then
 					midRoll = true
-					windower.send_command('wait 1.1;input /ja "Snake Eye" <me>;wait 5.5;input /ja "Double-Up" <me>')
+					windower.send_command('input /ja "Snake Eye" <me>;wait 1.5;input /ja "Double-Up" <me>')
 				elseif available_ja:contains(177) and abil_recasts[197] == 0 and rollNum == (rollInfo[rollID][15] - 1) then
 					midRoll = true
-					windower.send_command('wait 1.1;input /ja "Snake Eye" <me>;wait 5.5;input /ja "Double-Up" <me>')
+					windower.send_command('input /ja "Snake Eye" <me>;wait 1.5;input /ja "Double-Up" <me>')
 				elseif available_ja:contains(177) and abil_recasts[197] == 0 and not lastRoll == 11 and rollNum > 6 and rollNum == rollInfo[rollID][16] then
 					midRoll = true
-					windower.send_command('wait 1.1;input /ja "Snake Eye" <me>;wait 5.5;input /ja "Double-Up" <me>')
+					windower.send_command('input /ja "Snake Eye" <me>;wait 1.5;input /ja "Double-Up" <me>')
 				-- Try 11 if BUST is up
 				elseif available_ja:contains(178) and abil_recasts[198] == 0 and not lastRollCrooked and rollNum < 9 and settings.bust then
 				--elseif available_ja:contains(178) and abil_recasts[198] == 0 and not lastRollCrooked and rollNum < 6 then --and settings.bust then
 					midRoll = true
-					windower.send_command('wait 1.5;input /ja "Double-Up" <me>')
+					windower.send_command('input /ja "Double-Up" <me>')
 				elseif rollNum < 6 then
 					midRoll = true
-					windower.send_command('wait 1.5;input /ja "Double-Up" <me>')
+					windower.send_command('input /ja "Double-Up" <me>')
 				-- Roll 11 if last roll 11
 				elseif lastRoll == 11 and not lastRollCrooked and settings.xi then
 					midRoll = true
-					windower.send_command('wait 1.5;input /ja "Double-Up" <me>')
+					windower.send_command('input /ja "Double-Up" <me>')
 				else
 					midRoll = false
 					lastRoll = rollNum
@@ -427,7 +427,7 @@ windower.register_event('action', function(act)
 			
 			elseif rollNum < 6 then
 				midRoll = true
-				windower.send_command('wait 1.5;input /ja "Double-Up" <me>')
+				windower.send_command('input /ja "Double-Up" <me>')
 			end
 		end
 	end
@@ -482,7 +482,7 @@ Cities = S{
 }
 
 function doRoll()
-	coroutine.sleep(7.5)
+	--coroutine.sleep(7.5)
 	--if Cities:contains(res.zones[windower.ffxi.get_info().zone].english) then return end
 	if not autoroll or haveBuff('amnesia') or haveBuff('impairment') or midRoll then return end
 	if haveBuff('Sneak') or haveBuff('Invisible') then
@@ -501,7 +501,7 @@ function doRoll()
 	local available_ja = S(windower.ffxi.get_abilities().job_abilities)
 
 	if player.main_job == 'COR' and abil_recasts[198] and abil_recasts[198] > 0 and abil_recasts[197] and abil_recasts[193] == 0 and abil_recasts[197] > 0 and abil_recasts[196] and abil_recasts[194] == 0 and abil_recasts[196] == 0 then 
-		windower.send_command('wait 1.5; input /ja "Random Deal" <me>')
+		windower.send_command('input /ja "Random Deal" <me>')
 		return 
 	end
 	
