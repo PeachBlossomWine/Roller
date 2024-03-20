@@ -401,13 +401,13 @@ windower.register_event('action', function(act)
 				local available_ja = S(windower.ffxi.get_abilities().job_abilities)
 				if available_ja:contains(177) and abil_recasts[197] == 0 and rollNum == 10 then
 					midRoll = true
-					windower.send_command('input /ja "Snake Eye" <me>;wait 1.5;input /ja "Double-Up" <me>')
+					windower.send_command('input /ja "Snake Eye" <me>;wait 2.5;input /ja "Double-Up" <me>')
 				elseif available_ja:contains(177) and abil_recasts[197] == 0 and rollNum == (rollInfo[rollID][15] - 1) then
 					midRoll = true
-					windower.send_command('input /ja "Snake Eye" <me>;wait 1.5;input /ja "Double-Up" <me>')
+					windower.send_command('input /ja "Snake Eye" <me>;wait 2.5;input /ja "Double-Up" <me>')
 				elseif available_ja:contains(177) and abil_recasts[197] == 0 and not lastRoll == 11 and rollNum > 6 and rollNum == rollInfo[rollID][16] then
 					midRoll = true
-					windower.send_command('input /ja "Snake Eye" <me>;wait 1.5;input /ja "Double-Up" <me>')
+					windower.send_command('input /ja "Snake Eye" <me>;wait 2.5;input /ja "Double-Up" <me>')
 				-- Try 11 if BUST is up
 				elseif available_ja:contains(178) and abil_recasts[198] == 0 and not lastRollCrooked and rollNum < 9 and settings.bust then
 				--elseif available_ja:contains(178) and abil_recasts[198] == 0 and not lastRollCrooked and rollNum < 6 then --and settings.bust then
