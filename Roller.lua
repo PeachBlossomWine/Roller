@@ -482,7 +482,7 @@ Cities = S{
 }
 
 function doRoll()
-	--coroutine.sleep(7.5)
+	coroutine.sleep(1.5)
 	--if Cities:contains(res.zones[windower.ffxi.get_info().zone].english) then return end
 	if not autoroll or haveBuff('amnesia') or haveBuff('impairment') or midRoll then return end
 	if haveBuff('Sneak') or haveBuff('Invisible') then
