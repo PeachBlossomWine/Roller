@@ -401,13 +401,14 @@ windower.register_event('action', function(act)
 				local available_ja = S(windower.ffxi.get_abilities().job_abilities)
 				if available_ja:contains(177) and abil_recasts[197] == 0 and rollNum == 10 then
 					midRoll = true
-					windower.send_command('input /ja "Snake Eye" <me>;wait 2.5;input /ja "Double-Up" <me>')
+					windower.send_command('input /ja "Snake Eye" <me>; wait 3; input /ja "Double-Up" <me>')
 				elseif available_ja:contains(177) and abil_recasts[197] == 0 and rollNum == (rollInfo[rollID][15] - 1) then
 					midRoll = true
-					windower.send_command('input /ja "Snake Eye" <me>;wait 2.5;input /ja "Double-Up" <me>')
+					windower.send_command('input /ja "Snake Eye" <me>; wait 3; input /ja "Double-Up" <me>')
 				elseif available_ja:contains(177) and abil_recasts[197] == 0 and not lastRoll == 11 and rollNum > 6 and rollNum == rollInfo[rollID][16] then
+					windower.add_to_chat(7,'Unlucky, doing Snake Eye to get out of it.')
 					midRoll = true
-					windower.send_command('input /ja "Snake Eye" <me>;wait 2.5;input /ja "Double-Up" <me>')
+					windower.send_command('input /ja "Snake Eye" <me>; wait 3; input /ja "Double-Up" <me>')
 				-- Try 11 if BUST is up
 				elseif available_ja:contains(178) and abil_recasts[198] == 0 and not lastRollCrooked and rollNum < 9 and settings.bust then
 				--elseif available_ja:contains(178) and abil_recasts[198] == 0 and not lastRollCrooked and rollNum < 6 then --and settings.bust then
@@ -485,11 +486,12 @@ function doRoll()
 	coroutine.sleep(1.5)
 	--if Cities:contains(res.zones[windower.ffxi.get_info().zone].english) then return end
 	if not autoroll or haveBuff('amnesia') or haveBuff('impairment') or midRoll then return end
-	if haveBuff('Sneak') or haveBuff('Invisible') then
-		stealthy = true
-	else
-		stealthy = false
-	end
+	-- if haveBuff('Sneak') or haveBuff('Invisible') then
+		-- stealthy = true
+	-- else
+		-- stealthy = false
+	-- end
+	stealthy = false
 	if not (stealthy == was_stealthy) then update_displaybox() end
 	was_stealthy = stealthy
 	if stealthy then return end
