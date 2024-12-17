@@ -47,6 +47,7 @@ defaults.xi = false
 zonedelay = 6
 stealthy = ''
 was_stealthy = ''
+__bust = false
 
 lastRoll = 0
 lastRollCrooked = false
@@ -287,12 +288,12 @@ windower.register_event('addon command',function (...)
 				windower.add_to_chat(7,'Invalid roll name, Roll 2 remains: '..Rollindex[settings.Roll_ind_2]..'')
 			end
 		 elseif cmd[1] == "bust" then
-			if settings.bust == true then
-				settings.bust = false
+			if cmd[2] and cmd[2] == 'off' then
+				__bust = false
 				config.save(settings)
 				windower.add_to_chat(7,'Turning OFF Bust for rolls.')
-			else
-				settings.bust = true
+			elseif cmd[2] and cmd[2] == 'on' then
+				__bust = true
 				config.save(settings)
 				windower.add_to_chat(7,'Using Bust for rolls.')
 			end
@@ -371,6 +372,33 @@ windower.register_event('load', function()
 	end	
 end)
 
+function waitAndRollDoubleUp()
+	coroutine.sleep(0.5)
+    local abil_recasts = windower.ffxi.get_ability_recasts()
+    -- Wait for Double-Up to be ready
+    while abil_recasts[194] ~= 0 do
+        coroutine.sleep(0.5)
+        abil_recasts = windower.ffxi.get_ability_recasts()
+    end
+	coroutine.sleep(0.5)
+    -- Once ready, perform Double-Up
+    while abil_recasts[194] == 0 do
+        windower.send_command('input /ja "Double-Up" <me>')
+        coroutine.sleep(2.2)
+        abil_recasts = windower.ffxi.get_ability_recasts()
+    end
+end
+
+function snakeEye()
+	coroutine.sleep(0.5)
+	local abil_recasts = windower.ffxi.get_ability_recasts()
+	while abil_recasts[197] == 0 do
+		windower.send_command('input /ja "Snake Eye" <me>')
+		coroutine.sleep(2.2)
+		abil_recasts = windower.ffxi.get_ability_recasts()
+	end
+end
+
 windower.register_event('action', function(act)
 
     if act.category == 6 and table.containskey(rollInfo, act.param) then
@@ -379,15 +407,13 @@ windower.register_event('action', function(act)
         local rollID = act.param
 		if rollID == 177 then return end
         local rollNum = act.targets[1].actions[1].param
-		--windower.add_to_chat(7,'rollNum: '..act.targets[1].actions[1].param..'')
 		local player = windower.ffxi.get_player()
 
 		if act.actor_id == player.id then
-			--If roll is lucky or 11 returns.
 			if act.targets[1].actions[1].message ~= 424 then
 				lastRollCrooked = false
 			end
-			if rollNum == rollInfo[rollID][15] or rollNum == 11 then
+			if rollNum == rollInfo[rollID][15] or rollNum == 11 then -- If lucky or 11 then stop rolling
 				lastRoll = rollNum
 				midRoll = false
 				return
@@ -399,36 +425,47 @@ windower.register_event('action', function(act)
 				
 				local abil_recasts = windower.ffxi.get_ability_recasts()
 				local available_ja = S(windower.ffxi.get_abilities().job_abilities)
-				if available_ja:contains(177) and abil_recasts[197] == 0 and rollNum == 10 then
+				-- Try 11 if BUST is up
+				if available_ja:contains(178) and abil_recasts[198] == 0 and not lastRollCrooked and rollNum < 9 and __bust then
+					windower.add_to_chat(7,'Bust function is on - Try for 11.')
 					midRoll = true
-					windower.send_command('input /ja "Snake Eye" <me>; wait 3; input /ja "Double-Up" <me>')
-				elseif available_ja:contains(177) and abil_recasts[197] == 0 and rollNum == (rollInfo[rollID][15] - 1) then
+					waitAndRollDoubleUp()
+				elseif available_ja:contains(177) and abil_recasts[197] == 0 and (rollNum == 10 or rollNum == 9) then
+					windower.add_to_chat(7,'9 or 10, doing Snake Eye to get 11')
 					midRoll = true
-					windower.send_command('input /ja "Snake Eye" <me>; wait 3; input /ja "Double-Up" <me>')
-				elseif available_ja:contains(177) and abil_recasts[197] == 0 and not lastRoll == 11 and rollNum > 6 and rollNum == rollInfo[rollID][16] then
+					snakeEye()
+					waitAndRollDoubleUp()
+				--Close to lucky [1 or 2]
+				elseif available_ja:contains(177) and abil_recasts[197] == 0 and (rollNum == (rollInfo[rollID][15] - 1) or rollNum == (rollInfo[rollID][15] - 2)) then
+					windower.add_to_chat(7,'Close to lucky [1-2]')
+					midRoll = true
+					snakeEye()
+					waitAndRollDoubleUp()
+				-- Unlucky, use Snake Eye to get out of it.
+				elseif available_ja:contains(177) and abil_recasts[197] == 0 and lastRoll ~= 11 and rollNum >= 6 and rollNum == rollInfo[rollID][16] then
 					windower.add_to_chat(7,'Unlucky, doing Snake Eye to get out of it.')
 					midRoll = true
-					windower.send_command('input /ja "Snake Eye" <me>; wait 3; input /ja "Double-Up" <me>')
-				-- Try 11 if BUST is up
-				elseif available_ja:contains(178) and abil_recasts[198] == 0 and not lastRollCrooked and rollNum < 9 and settings.bust then
-				--elseif available_ja:contains(178) and abil_recasts[198] == 0 and not lastRollCrooked and rollNum < 6 then --and settings.bust then
-					midRoll = true
-					windower.send_command('input /ja "Double-Up" <me>')
+					snakeEye()
+					waitAndRollDoubleUp()
+				-- Less than 6 so roll again.
 				elseif rollNum < 6 then
+					windower.add_to_chat(7,'Less than 6 and not lucky, re-roll')
 					midRoll = true
-					windower.send_command('input /ja "Double-Up" <me>')
+					waitAndRollDoubleUp()
 				-- Roll 11 if last roll 11
 				elseif lastRoll == 11 and not lastRollCrooked and settings.xi then
+					windower.add_to_chat(7,'XI function is on - Get both rolls 11.')
 					midRoll = true
-					windower.send_command('input /ja "Double-Up" <me>')
+					waitAndRollDoubleUp()
+				-- Stop
 				else
 					midRoll = false
 					lastRoll = rollNum
 				end
-			
+			-- Unsure what this is for.
 			elseif rollNum < 6 then
 				midRoll = true
-				windower.send_command('input /ja "Double-Up" <me>')
+				waitAndRollDoubleUp()
 			end
 		end
 	end
@@ -486,11 +523,6 @@ function doRoll()
 	coroutine.sleep(1.5)
 	--if Cities:contains(res.zones[windower.ffxi.get_info().zone].english) then return end
 	if not autoroll or haveBuff('amnesia') or haveBuff('impairment') or midRoll then return end
-	-- if haveBuff('Sneak') or haveBuff('Invisible') then
-		-- stealthy = true
-	-- else
-		-- stealthy = false
-	-- end
 	stealthy = false
 	if not (stealthy == was_stealthy) then update_displaybox() end
 	was_stealthy = stealthy
@@ -502,10 +534,10 @@ function doRoll()
 	local abil_recasts = windower.ffxi.get_ability_recasts()
 	local available_ja = S(windower.ffxi.get_abilities().job_abilities)
 
-	if player.main_job == 'COR' and abil_recasts[198] and abil_recasts[198] > 0 and abil_recasts[197] and abil_recasts[193] == 0 and abil_recasts[197] > 0 and abil_recasts[196] and abil_recasts[194] == 0 and abil_recasts[196] == 0 then 
-		windower.send_command('input /ja "Random Deal" <me>')
-		return 
-	end
+	-- if player.main_job == 'COR' and abil_recasts[198] and abil_recasts[198] > 0 and abil_recasts[197] and abil_recasts[193] == 0 and abil_recasts[197] > 0 and abil_recasts[196] and abil_recasts[194] == 0 and abil_recasts[196] == 0 then 
+		-- windower.send_command('input /ja "Random Deal" <me>')
+		-- return 
+	-- end
 	
 	if player.main_job == 'COR' and haveBuff('Bust') and available_ja:contains(178) and abil_recasts[198] and abil_recasts[198] == 0 then windower.send_command('wait 1.5; input /ja "Fold" <me>') return end
 	if abil_recasts[193] > 0 then return end
@@ -598,7 +630,9 @@ function update_displaybox()
         h='\\cs(255,192,0)', -- Yellow for active booleans and non-default modals
 		w='\\cs(255,255,255)', -- White for labels and default modals
         n='\\cs(192,192,192)', -- White for labels and default modals
-        s='\\cs(96,96,96)' -- Gray for inactive booleans
+        s='\\cs(96,96,96)', -- Gray for inactive booleans
+		g='\\cs(0,255,0)',     -- Green for "On"
+        r='\\cs(255,0,0)',      -- Red for "Off"
     }
 
     local info = {}
@@ -624,10 +658,10 @@ function update_displaybox()
 		elseif haveBuff('Sneak') then
 			displayBox:append("Suspended: Sneak")
 		else
-			displayBox:append("On")
+			displayBox:append(clr.g .. "On\\cr")
 		end
 	else
-		displayBox:append("Off")
+		displayBox:append(clr.r .. "Off\\cr")
 	end
 
 	if settings.engaged then
@@ -635,9 +669,9 @@ function update_displaybox()
 	end
 	
 	displayBox:append("  Bust: ")
-	if settings.bust then
+	if __bust then
 		displayBox:append("On")
-	elseif settings.bust == false then
+	elseif __bust == false then
 		displayBox:append("Off")
 	end
 	
