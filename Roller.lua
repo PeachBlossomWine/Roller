@@ -382,7 +382,7 @@ function waitAndRollDoubleUp()
     end
 	coroutine.sleep(0.5)
     -- Once ready, perform Double-Up
-    while abil_recasts[194] == 0 do
+    while abil_recasts[194] == 0 and hasRollActive() do
         windower.send_command('input /ja "Double-Up" <me>')
         coroutine.sleep(2.2)
         abil_recasts = windower.ffxi.get_ability_recasts()
@@ -483,6 +483,18 @@ function haveBuff(...)
 		end
 	end
 	return false
+end
+
+function hasRollActive()
+    local player = windower.ffxi.get_player()
+    if (player ~= nil) and (player.buffs ~= nil) then
+        for _, bid in pairs(player.buffs) do
+            if (bid >= 310 and bid <= 339) or (bid == 600) then
+                return true
+            end
+        end
+    end
+    return false
 end
 
 Cities = S{
