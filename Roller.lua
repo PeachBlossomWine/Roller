@@ -25,8 +25,8 @@
 --SOFTWARE, EVEN IFIF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 _addon.name = 'Roller'
-_addon.version = '1.8'
-_addon.author = 'Selindrile, thanks to: Balloon and Lorand'
+_addon.version = '3.5'
+_addon.author = 'Selindrile, thanks to: Balloon and Lorand - PBW Modified'
 _addon.commands = {'roller','roll'}
 
 require('luau')
@@ -48,6 +48,7 @@ zonedelay = 6
 stealthy = ''
 was_stealthy = ''
 __bust = false
+__XI = false
 
 lastRoll = 0
 lastRollCrooked = false
@@ -290,7 +291,6 @@ windower.register_event('addon command',function (...)
 		 elseif cmd[1] == "bust" then
 			if cmd[2] and cmd[2] == 'off' then
 				__bust = false
-				config.save(settings)
 				windower.add_to_chat(7,'Turning OFF Bust for rolls.')
 			elseif cmd[2] and cmd[2] == 'on' then
 				__bust = true
@@ -298,13 +298,11 @@ windower.register_event('addon command',function (...)
 				windower.add_to_chat(7,'Using Bust for rolls.')
 			end
 		 elseif cmd[1] == "xi" then
-			if settings.xi == true then
-				settings.xi = false
-				config.save(settings)
+			if cmd[2] and cmd[2] == 'off' then
+				__XI = false
 				windower.add_to_chat(7,'Turning OFF XI spam for rolls.')
-			else
-				settings.xi = true
-				config.save(settings)
+			elseif cmd[2] and cmd[2] == 'on' then
+				__XI = true
 				windower.add_to_chat(7,'Using XI spam for rolls.')
 			end
          end
@@ -431,6 +429,7 @@ windower.register_event('action', function(act)
 					windower.add_to_chat(7,'Bust function is on - Try for 11.')
 					midRoll = true
 					waitAndRollDoubleUp()
+				-- Snake eye to get XI
 				elseif available_ja:contains(177) and abil_recasts[197] == 0 and (rollNum == 10) then  -- If Snake Eye is up.
 					windower.add_to_chat(7,'10, doing Snake Eye to get 11')
 					midRoll = true
@@ -438,7 +437,7 @@ windower.register_event('action', function(act)
 					waitAndRollDoubleUp()
 				-- 1 to lucky use Snake Eye
 				elseif available_ja:contains(177) and abil_recasts[197] == 0 and rollNum == (rollInfo[rollID][15] - 1) then
-					windower.add_to_chat(7,'Close to lucky [1-2]')
+					windower.add_to_chat(7,'Close to lucky [1]')
 					midRoll = true
 					snakeEye()
 					waitAndRollDoubleUp()
@@ -447,6 +446,11 @@ windower.register_event('action', function(act)
 					windower.add_to_chat(7,'Unlucky, doing Snake Eye to get out of it.')
 					midRoll = true
 					snakeEye()
+					waitAndRollDoubleUp()
+				-- Roll 11 if last roll 11
+				elseif __XI and lastRoll == 11 then -- and not lastRollCrooked
+					windower.add_to_chat(7,'XI function is on - Get both rolls 11.')
+					midRoll = true
 					waitAndRollDoubleUp()
 				-- Less than 6 so roll again.
 				elseif rollNum < 6 then
@@ -487,7 +491,7 @@ windower.register_event('action', function(act)
 					-- midRoll = true
 					-- waitAndRollDoubleUp()
 				-- -- Roll 11 if last roll 11
-				-- elseif lastRoll == 11 and not lastRollCrooked and settings.xi then
+				-- elseif lastRoll == 11 and not lastRollCrooked and __XI then
 					-- windower.add_to_chat(7,'XI function is on - Get both rolls 11.')
 					-- midRoll = true
 					-- waitAndRollDoubleUp()
@@ -706,7 +710,6 @@ function update_displaybox()
     }
 
     displayBox:clear()
-	--displayBox:append(spc)
 
  	displayBox:append("Roll 1: "..Rollindex[settings.Roll_ind_1].."   ")
 	if windower.ffxi.get_player().main_job == 'COR' and settings.Roll_ind_1 ~= settings.Roll_ind_2 then
@@ -737,10 +740,10 @@ function update_displaybox()
 	end
 	
 	displayBox:append("  XI: ")
-	if settings.xi then
-		displayBox:append("On")
-	elseif settings.xi == false then
-		displayBox:append("Off")
+	if __XI then
+		displayBox:append(clr.g .. "On\\cr")
+	elseif __XI == false then
+		displayBox:append(clr.r .. "Off\\cr")
 	end
 	
     -- Update and display current info
