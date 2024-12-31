@@ -412,7 +412,7 @@ windower.register_event('action', function(act)
 				lastRollCrooked = false
 			end
 			if (not __bust and rollNum == rollInfo[rollID][15]) or rollNum == 11 then -- If lucky or 11 then stop rolling
-				windower.add_to_chat(7,'Lucky or 11')
+				windower.add_to_chat(7,'Lucky or XI - Stop rolling.')
 				lastRoll = rollNum
 				midRoll = false
 				return
@@ -461,47 +461,7 @@ windower.register_event('action', function(act)
 					midRoll = false
 					lastRoll = rollNum
 				end
-
-				
-				
-				-- if __bust and available_ja:contains(178) and abil_recasts[198] == 0 and rollNum < 10 then  -- and not lastRollCrooked
-					-- windower.add_to_chat(7,'Bust function is on - Try for 11.')
-					-- midRoll = true
-					-- waitAndRollDoubleUp()
-				-- elseif available_ja:contains(177) and abil_recasts[197] == 0 and (rollNum == 10) then
-					-- windower.add_to_chat(7,'10, doing Snake Eye to get 11')
-					-- midRoll = true
-					-- snakeEye()
-					-- waitAndRollDoubleUp()
-				--Close to lucky [1 or 2]
-				-- elseif not __bust and available_ja:contains(177) and abil_recasts[197] == 0 and (rollNum == (rollInfo[rollID][15] - 1) or rollNum == (rollInfo[rollID][15] - 2)) then
-					-- windower.add_to_chat(7,'Close to lucky [1-2]')
-					-- midRoll = true
-					-- snakeEye()
-					-- waitAndRollDoubleUp()
-				-- -- Unlucky, use Snake Eye to get out of it.
-				-- elseif not __bust and available_ja:contains(177) and abil_recasts[197] == 0 and lastRoll ~= 11 and rollNum >= 6 and rollNum == rollInfo[rollID][16] then
-					-- windower.add_to_chat(7,'Unlucky, doing Snake Eye to get out of it.')
-					-- midRoll = true
-					-- snakeEye()
-					-- waitAndRollDoubleUp()
-				-- -- Less than 6 so roll again.
-				-- elseif not __bust and rollNum < 6 then
-					-- windower.add_to_chat(7,'Less than 6 and not lucky, re-roll')
-					-- midRoll = true
-					-- waitAndRollDoubleUp()
-				-- -- Roll 11 if last roll 11
-				-- elseif lastRoll == 11 and not lastRollCrooked and __XI then
-					-- windower.add_to_chat(7,'XI function is on - Get both rolls 11.')
-					-- midRoll = true
-					-- waitAndRollDoubleUp()
-				-- Stop
-				-- else
-					-- midRoll = false
-					-- lastRoll = rollNum
-				-- end
-			-- Unsure what this is for.
-			elseif rollNum < 6 then
+			elseif rollNum < 6 then -- COR subjob.
 				midRoll = true
 				waitAndRollDoubleUp()
 			end
