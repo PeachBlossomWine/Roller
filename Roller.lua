@@ -425,7 +425,7 @@ windower.register_event('action', function(act)
 				local abil_recasts = windower.ffxi.get_ability_recasts()
 				local available_ja = S(windower.ffxi.get_abilities().job_abilities)
 				
-				if __bust and available_ja:contains(178) and abil_recasts[198] == 0 and rollNum < 10 then  -- and not lastRollCrooked
+				if __bust and available_ja:contains(178) and abil_recasts[198] == 0 and rollNum < 10 and rollNum ~= rollInfo[rollID][15] then  -- and not lastRollCrooked
 					windower.add_to_chat(7,'Bust function is on - Try for 11.')
 					midRoll = true
 					waitAndRollDoubleUp()
@@ -453,7 +453,7 @@ windower.register_event('action', function(act)
 					midRoll = true
 					waitAndRollDoubleUp()
 				-- Less than 6 so roll again.
-				elseif rollNum < 6 then
+				elseif rollNum < 6 and rollNum ~= rollInfo[rollID][15] then
 					windower.add_to_chat(7,'Less than 6 and not lucky, re-roll')
 					midRoll = true
 					waitAndRollDoubleUp()
