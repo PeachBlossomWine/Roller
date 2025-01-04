@@ -371,14 +371,14 @@ windower.register_event('load', function()
 end)
 
 function waitAndRollDoubleUp()
-	coroutine.sleep(0.5)
     local abil_recasts = windower.ffxi.get_ability_recasts()
     -- Wait for Double-Up to be ready
     while abil_recasts[194] ~= 0 do
         coroutine.sleep(0.5)
         abil_recasts = windower.ffxi.get_ability_recasts()
     end
-	coroutine.sleep(0.5)
+	windower.send_command('input /ja "Double-Up" <me>')
+	coroutine.sleep(0.75)
     -- Once ready, perform Double-Up
     while abil_recasts[194] == 0 and hasRollActive() do
         windower.send_command('input /ja "Double-Up" <me>')
@@ -388,7 +388,6 @@ function waitAndRollDoubleUp()
 end
 
 function snakeEye()
-	coroutine.sleep(0.5)
 	local abil_recasts = windower.ffxi.get_ability_recasts()
 	while abil_recasts[197] == 0 do
 		windower.send_command('input /ja "Snake Eye" <me>')
