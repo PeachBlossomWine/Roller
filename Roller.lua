@@ -345,8 +345,10 @@ function waitAndRollDoubleUp()
         coroutine.sleep(0.5)
         abil_recasts = windower.ffxi.get_ability_recasts()
     end
-	windower.send_command('input /ja "Double-Up" <me>')
-	coroutine.sleep(0.75)
+	--windower.send_command('input /ja "Double-Up" <me>')
+	--coroutine.sleep(2.2)
+	coroutine.sleep(0.5)
+	abil_recasts = windower.ffxi.get_ability_recasts()
     -- Once ready, perform Double-Up
     while abil_recasts[194] == 0 and hasRollActive() do
         windower.send_command('input /ja "Double-Up" <me>')
@@ -644,13 +646,13 @@ function update_displaybox()
 	end
 	displayBox:append("Autoroll: ")
 	if autoroll == true then
-		if haveBuff('Invisible') then
-			displayBox:append("Suspended: Invisible")
-		elseif haveBuff('Sneak') then
-			displayBox:append("Suspended: Sneak")
-		else
+		-- if haveBuff('Invisible') then
+			-- displayBox:append("Suspended: Invisible")
+		-- elseif haveBuff('Sneak') then
+			-- displayBox:append("Suspended: Sneak")
+		-- else
 			displayBox:append(clr.g .. "On\\cr")
-		end
+		--end
 	else
 		displayBox:append(clr.r .. "Off\\cr")
 	end
