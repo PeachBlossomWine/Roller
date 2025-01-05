@@ -339,15 +339,14 @@ windower.register_event('load', function()
 end)
 
 function waitAndRollDoubleUp()
+	coroutine.sleep(0.5)
     local abil_recasts = windower.ffxi.get_ability_recasts()
     -- Wait for Double-Up to be ready
     while abil_recasts[194] ~= 0 do
         coroutine.sleep(0.5)
         abil_recasts = windower.ffxi.get_ability_recasts()
     end
-	--windower.send_command('input /ja "Double-Up" <me>')
-	--coroutine.sleep(2.2)
-	coroutine.sleep(0.5)
+	coroutine.sleep(1.0)
 	abil_recasts = windower.ffxi.get_ability_recasts()
     -- Once ready, perform Double-Up
     while abil_recasts[194] == 0 and hasRollActive() do
