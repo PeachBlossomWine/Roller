@@ -25,6 +25,7 @@ __XI = false
 lastRoll = 0
 lastRollCrooked = false
 midRoll = false
+last_roll_info = {} 
 
 windower.register_event('addon command',function (...)
     cmd = {...}
@@ -75,15 +76,22 @@ windower.register_event('addon command',function (...)
 			end
 		elseif cmd[1] == "midroll" and cmd[2] == 'off' then	
 			midRoll = false
-		elseif cmd[1] == "start" or cmd[1] == "go" or cmd[1] == "begin" or cmd[1] == "enable" or cmd[1] == "on" or cmd[1] == "engage" or cmd[1] == "resume" then
+		elseif cmd[1] == "start" or cmd[1] == "on" then
 			zonedelay = 6
 			if autoroll == false then
 				autoroll = true
-				windower.add_to_chat(7,'Enabling Automatic Rolling.')
+				if cmd[2] == 'resume' then
+					windower.add_to_chat(7,'Enabling Automatic Rolling - RESUME LAST ROLL')
+					if last_roll_info and haveBuff("Double-Up Chance") and hasRollActive() then
+						doubleUpHelper(last_roll_info.rollNum,last_roll_info.rollID)
+					end
+				else
+					windower.add_to_chat(7,'Enabling Automatic Rolling.')
+				end
 			elseif autoroll == true then
 				windower.add_to_chat(7,'Automatic Rolling already enabled.')
 			end
-		elseif cmd[1] == "stop" or cmd[1] == "quit" or cmd[1] == "end" or cmd[1] == "disable" or cmd[1] == "off" or cmd[1] == "disengage" or cmd[1] == "pause" then
+		elseif cmd[1] == "stop" or cmd[1] == "off" then
 			zonedelay = 6
 			if autoroll == true then
 				autoroll = false
@@ -374,6 +382,10 @@ windower.register_event('action', function(act)
 		if rollID == 177 then return end
         local rollNum = act.targets[1].actions[1].param
 		local player = windower.ffxi.get_player()
+		-- Store the last roll info, regardless of autoroll state
+        last_roll_info = { rollID = rollID, rollNum = rollNum }
+		log(last_roll_info.rollID)
+		log(last_roll_info.rollNum)
 
 		if act.actor_id == player.id then
 			if act.targets[1].actions[1].message ~= 424 then
@@ -387,55 +399,60 @@ windower.register_event('action', function(act)
 			end
 
 			if not autoroll or haveBuff('amnesia') or haveBuff('impairment') then return end
+			doubleUpHelper(rollNum,rollID)
 			
-			if player.main_job == 'COR' then
-				
-				local abil_recasts = windower.ffxi.get_ability_recasts()
-				local available_ja = S(windower.ffxi.get_abilities().job_abilities)
-				
-				if __bust and available_ja:contains(178) and abil_recasts[198] == 0 and rollNum < 10 and rollNum ~= rollInfo[rollID][15] then  -- and not lastRollCrooked
-					windower.add_to_chat(7,'Bust function is on - Try for 11.')
-					midRoll = true
-					waitAndRollDoubleUp()
-				-- Snake eye to get XI
-				elseif available_ja:contains(177) and abil_recasts[197] == 0 and (rollNum == 10) then  -- If Snake Eye is up.
-					windower.add_to_chat(7,'10, doing Snake Eye to get 11')
-					midRoll = true
-					snakeEye()
-					waitAndRollDoubleUp()
-				-- 1 to lucky use Snake Eye
-				elseif available_ja:contains(177) and abil_recasts[197] == 0 and rollNum == (rollInfo[rollID][15] - 1) then
-					windower.add_to_chat(7,'Close to lucky [1]')
-					midRoll = true
-					snakeEye()
-					waitAndRollDoubleUp()
-				-- Unlucky, use Snake Eye to get out of it.
-				elseif available_ja:contains(177) and abil_recasts[197] == 0 and lastRoll ~= 11 and rollNum >= 6 and rollNum == rollInfo[rollID][16] then
-					windower.add_to_chat(7,'Unlucky, doing Snake Eye to get out of it.')
-					midRoll = true
-					snakeEye()
-					waitAndRollDoubleUp()
-				-- Roll 11 if last roll 11
-				elseif __XI and lastRoll == 11 then -- and not lastRollCrooked
-					windower.add_to_chat(7,'XI function is on - Get both rolls 11.')
-					midRoll = true
-					waitAndRollDoubleUp()
-				-- Less than 6 so roll again.
-				elseif rollNum < 6 and rollNum ~= rollInfo[rollID][15] then
-					windower.add_to_chat(7,'Less than 6 and not lucky, re-roll')
-					midRoll = true
-					waitAndRollDoubleUp()
-				else
-					midRoll = false
-					lastRoll = rollNum
-				end
-			elseif rollNum < 6 then -- COR subjob.
-				midRoll = true
-				waitAndRollDoubleUp()
-			end
 		end
 	end
 end)
+
+function doubleUpHelper(rollNum,rollID)
+	local player = windower.ffxi.get_player()
+	if player.main_job == 'COR' then
+				
+		local abil_recasts = windower.ffxi.get_ability_recasts()
+		local available_ja = S(windower.ffxi.get_abilities().job_abilities)
+		
+		if __bust and available_ja:contains(178) and abil_recasts[198] == 0 and rollNum < 10 and rollNum ~= rollInfo[rollID][15] then  -- and not lastRollCrooked
+			windower.add_to_chat(7,'Bust function is on - Try for 11.')
+			midRoll = true
+			waitAndRollDoubleUp()
+		-- Snake eye to get XI
+		elseif available_ja:contains(177) and abil_recasts[197] == 0 and (rollNum == 10) then  -- If Snake Eye is up.
+			windower.add_to_chat(7,'10, doing Snake Eye to get 11')
+			midRoll = true
+			snakeEye()
+			waitAndRollDoubleUp()
+		-- 1 to lucky use Snake Eye
+		elseif available_ja:contains(177) and abil_recasts[197] == 0 and rollNum == (rollInfo[rollID][15] - 1) then
+			windower.add_to_chat(7,'Close to lucky [1]')
+			midRoll = true
+			snakeEye()
+			waitAndRollDoubleUp()
+		-- Unlucky, use Snake Eye to get out of it.
+		elseif available_ja:contains(177) and abil_recasts[197] == 0 and lastRoll ~= 11 and rollNum >= 6 and rollNum == rollInfo[rollID][16] then
+			windower.add_to_chat(7,'Unlucky, doing Snake Eye to get out of it.')
+			midRoll = true
+			snakeEye()
+			waitAndRollDoubleUp()
+		-- Roll 11 if last roll 11
+		elseif __XI and lastRoll == 11 then -- and not lastRollCrooked
+			windower.add_to_chat(7,'XI function is on - Get both rolls 11.')
+			midRoll = true
+			waitAndRollDoubleUp()
+		-- Less than 6 so roll again.
+		elseif rollNum < 6 and rollNum ~= rollInfo[rollID][15] then
+			windower.add_to_chat(7,'Less than 6 and not lucky, re-roll')
+			midRoll = true
+			waitAndRollDoubleUp()
+		else
+			midRoll = false
+			lastRoll = rollNum
+		end
+	elseif rollNum < 6 then -- COR subjob.
+		midRoll = true
+		waitAndRollDoubleUp()
+	end
+end
 
 function haveBuff(...)
 	local args = S{...}:map(string.lower)
@@ -645,13 +662,7 @@ function update_displaybox()
 	end
 	displayBox:append("Autoroll: ")
 	if autoroll == true then
-		-- if haveBuff('Invisible') then
-			-- displayBox:append("Suspended: Invisible")
-		-- elseif haveBuff('Sneak') then
-			-- displayBox:append("Suspended: Sneak")
-		-- else
-			displayBox:append(clr.g .. "On\\cr")
-		--end
+		displayBox:append(clr.g .. "On\\cr")
 	else
 		displayBox:append(clr.r .. "Off\\cr")
 	end
