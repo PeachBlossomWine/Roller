@@ -384,8 +384,6 @@ windower.register_event('action', function(act)
 		local player = windower.ffxi.get_player()
 		-- Store the last roll info, regardless of autoroll state
         last_roll_info = { rollID = rollID, rollNum = rollNum }
-		log(last_roll_info.rollID)
-		log(last_roll_info.rollNum)
 
 		if act.actor_id == player.id then
 			if act.targets[1].actions[1].message ~= 424 then
@@ -398,7 +396,10 @@ windower.register_event('action', function(act)
 				return
 			end
 
-			if not autoroll or haveBuff('amnesia') or haveBuff('impairment') then return end
+			if not autoroll or haveBuff('amnesia') or haveBuff('impairment') then
+				if rollID ~= 118 then return end -- Only return if NOT rollID 118
+			end
+
 			doubleUpHelper(rollNum,rollID)
 			
 		end
@@ -408,45 +409,51 @@ end)
 function doubleUpHelper(rollNum,rollID)
 	local player = windower.ffxi.get_player()
 	if player.main_job == 'COR' then
-				
 		local abil_recasts = windower.ffxi.get_ability_recasts()
 		local available_ja = S(windower.ffxi.get_abilities().job_abilities)
 		
-		if __bust and available_ja:contains(178) and abil_recasts[198] == 0 and rollNum < 10 and rollNum ~= rollInfo[rollID][15] then  -- and not lastRollCrooked
-			windower.add_to_chat(7,'Bust function is on - Try for 11.')
-			midRoll = true
-			waitAndRollDoubleUp()
-		-- Snake eye to get XI
-		elseif available_ja:contains(177) and abil_recasts[197] == 0 and (rollNum == 10) then  -- If Snake Eye is up.
-			windower.add_to_chat(7,'10, doing Snake Eye to get 11')
-			midRoll = true
-			snakeEye()
-			waitAndRollDoubleUp()
-		-- 1 to lucky use Snake Eye
-		elseif available_ja:contains(177) and abil_recasts[197] == 0 and rollNum == (rollInfo[rollID][15] - 1) then
-			windower.add_to_chat(7,'Close to lucky [1]')
-			midRoll = true
-			snakeEye()
-			waitAndRollDoubleUp()
-		-- Unlucky, use Snake Eye to get out of it.
-		elseif available_ja:contains(177) and abil_recasts[197] == 0 and lastRoll ~= 11 and rollNum >= 6 and rollNum == rollInfo[rollID][16] then
-			windower.add_to_chat(7,'Unlucky, doing Snake Eye to get out of it.')
-			midRoll = true
-			snakeEye()
-			waitAndRollDoubleUp()
-		-- Roll 11 if last roll 11
-		elseif __XI and lastRoll == 11 then -- and not lastRollCrooked
-			windower.add_to_chat(7,'XI function is on - Get both rolls 11.')
-			midRoll = true
-			waitAndRollDoubleUp()
-		-- Less than 6 so roll again.
-		elseif rollNum < 6 and rollNum ~= rollInfo[rollID][15] then
-			windower.add_to_chat(7,'Less than 6 and not lucky, re-roll')
-			midRoll = true
-			waitAndRollDoubleUp()
-		else
-			midRoll = false
-			lastRoll = rollNum
+		if rollID ~= 118 then
+			if __bust and available_ja:contains(178) and abil_recasts[198] == 0 and rollNum < 10 and rollNum ~= rollInfo[rollID][15] then  -- and not lastRollCrooked
+				windower.add_to_chat(7,'Bust function is on - Try for 11.')
+				midRoll = true
+				waitAndRollDoubleUp()
+			-- Snake eye to get XI
+			elseif available_ja:contains(177) and abil_recasts[197] == 0 and (rollNum == 10) then  -- If Snake Eye is up.
+				windower.add_to_chat(7,'10, doing Snake Eye to get 11')
+				midRoll = true
+				snakeEye()
+				waitAndRollDoubleUp()
+			-- 1 to lucky use Snake Eye
+			elseif available_ja:contains(177) and abil_recasts[197] == 0 and rollNum == (rollInfo[rollID][15] - 1) then
+				windower.add_to_chat(7,'Close to lucky [1]')
+				midRoll = true
+				snakeEye()
+				waitAndRollDoubleUp()
+			-- Unlucky, use Snake Eye to get out of it.
+			elseif available_ja:contains(177) and abil_recasts[197] == 0 and lastRoll ~= 11 and rollNum >= 6 and rollNum == rollInfo[rollID][16] then
+				windower.add_to_chat(7,'Unlucky, doing Snake Eye to get out of it.')
+				midRoll = true
+				snakeEye()
+				waitAndRollDoubleUp()
+			-- Roll 11 if last roll 11
+			elseif __XI and lastRoll == 11 then -- and not lastRollCrooked
+				windower.add_to_chat(7,'XI function is on - Get both rolls 11.')
+				midRoll = true
+				waitAndRollDoubleUp()
+			-- Less than 6 so roll again.
+			elseif rollNum < 6 and rollNum ~= rollInfo[rollID][15] then
+				windower.add_to_chat(7,'Less than 6 and not lucky, re-roll')
+				midRoll = true
+				waitAndRollDoubleUp()
+			else
+				midRoll = false
+				lastRoll = rollNum
+			end
+		else -- Bolters
+			if rollNum <= 2 then
+				midRoll = true
+				waitAndRollDoubleUp()
+			end
 		end
 	elseif rollNum < 6 then -- COR subjob.
 		midRoll = true
