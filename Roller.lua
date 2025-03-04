@@ -16,6 +16,7 @@ settings.showdisplay = true
 settings.displayx = nil
 settings.displayy = nil
 settings.engaged = false
+settings.crooked = true
 zonedelay = 6
 stealthy = ''
 was_stealthy = ''
@@ -98,6 +99,18 @@ windower.register_event('addon command',function (...)
 				windower.add_to_chat(7,'Disabling Automatic Rolling.')
 			elseif autoroll == false then
 				windower.add_to_chat(7,'Automatic Rolling already disabled.')
+			end
+		elseif cmd[1] == "crooked" then
+			if cmd[2] == nil then
+				settings.crooked = not settings.crooked
+			elseif cmd[2] == 'on' then
+				settings.crooked = true
+				windower.add_to_chat(7,'Crooked: On.')
+			elseif cmd[2] == 'off' then
+				settings.crooked = false
+				windower.add_to_chat(7,'Crooked: Off.')
+			else
+				windower.add_to_chat(7,'Not a recognized engaged subcommand. (on, off)')
 			end
 		elseif cmd[1] == "roll" then
 			if cmd[2] == "roll1" then
@@ -565,7 +578,7 @@ function doRoll()
 	end
 	
 	if not haveBuff(Rollindex[settings.Roll_ind_1]) then
-		if player.main_job == 'COR' and player.main_job_level > 94 and abil_recasts[96] == 0 then 
+		if player.main_job == 'COR' and settings.crooked and player.main_job_level > 94 and abil_recasts[96] == 0 then 
 			windower.send_command('input /ja "Crooked Cards" <me>; wait 1.5; input /ja "'..Rollindex[settings.Roll_ind_1]..'" <me>')
 		else
 			windower.send_command('input /ja "'..Rollindex[settings.Roll_ind_1]..'" <me>')
