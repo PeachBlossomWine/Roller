@@ -552,7 +552,7 @@ function doRoll()
 	if __bust and player.main_job == 'COR'
 		and abil_recasts[198] and abil_recasts[198] > 0 -- Fold
 		--and abil_recasts[197] and abil_recasts[197] > 0 -- Snake Eye
-		and abil_recasts[193] == 0 -- Phantom Roll
+		--and abil_recasts[193] == 0 -- Phantom Roll
 		and abil_recasts[194] == 0 -- Double Up
 		and abil_recasts[196] and abil_recasts[196] == 0 then -- Random Deal
 			windower.add_to_chat(7,'Fold used - Random Deal')
